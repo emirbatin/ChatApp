@@ -3,20 +3,23 @@ import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import AlertPopup from "../components/AlertPopup";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
-  
+
   const navigate = useNavigate();
+  const apiUrl =
+  import.meta.env.MODE === "development"
+    ? import.meta.env.VITE_API_URL_DEV
+    : import.meta.env.VITE_API_URL_PROD;
 
-  const userEmailInput = "test@test.com"
-  const userPasswordInput = "test123"
-
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setLoading(true);
     if (!email || !password) {
       setPopupMessage("All fields are required");
@@ -24,18 +27,27 @@ const LoginPage = () => {
       setLoading(false);
       return;
     }
-    
-    if(email === userEmailInput && password === userPasswordInput) {
-      console.log("Login Successful");
+
+    try {
+      const response = await axios.post(`${apiUrl}/api/users/login`, {
+        email,
+        password,
+      });
+
+      const { token } = response.data;
+      if (rememberMe) {
+        localStorage.setItem("token", token);
+      } else {
+        sessionStorage.setItem("token", token);
+      }
+
       navigate("/chat");
-    } else {
+    } catch (error) {
       setPopupMessage("Invalid email or password");
       setShowPopup(true);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setLoading(false);
   };
 
   return (
@@ -76,6 +88,8 @@ const LoginPage = () => {
           classNames={{
             label: "text-small",
           }}
+          isSelected={rememberMe}
+          onChange={setRememberMe}
         >
           Remember me
         </Checkbox>
@@ -95,10 +109,10 @@ const LoginPage = () => {
       </div>
       {showPopup && (
         <AlertPopup
-        show={showPopup}
-        message={popupMessage}
-        onClose={() => setShowPopup(false)}
-      />
+          show={showPopup}
+          message={popupMessage}
+          onClose={() => setShowPopup(false)}
+        />
       )}
     </div>
   );
