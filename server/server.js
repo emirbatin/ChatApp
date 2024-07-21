@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const userRoutes = require("./routes/userRoute");
+const messageRoutes = require("./routes/messageRoute");
 const path = require("path");
 const cors = require("cors");
 const fs = require("fs");
@@ -51,6 +52,7 @@ app.set("trust proxy", 1);
 // Static file service
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/users", userRoutes);
+app.use("/api/messages", messageRoutes);
 
 // Connect to MongoDB
 mongoose

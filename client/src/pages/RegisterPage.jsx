@@ -32,7 +32,10 @@ const RegisterPage = () => {
         const payload = { username, email, password };
         console.log("Sending registration data:", payload);
 
-        const response = await axios.post(`${apiUrl}/api/users/register`, payload);
+        const response = await axios.post(
+          `${apiUrl}/api/users/register`,
+          payload
+        );
         console.log("Registration Successful", response.data);
 
         const { token } = response.data;
@@ -40,7 +43,10 @@ const RegisterPage = () => {
 
         navigate("/chat");
       } catch (error) {
-        console.error("Registration failed:", error.response ? error.response.data : error.message);
+        console.error(
+          "Registration failed:",
+          error.response ? error.response.data : error.message
+        );
         setPopupMessage("Registration failed. Please try again.");
         setShowPopup(true);
       } finally {
@@ -50,55 +56,57 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-full justify-center text-start md:w-[30vw] sm:w-[60vw]">
-      <h1>Register</h1>
-      <Spacer y={4} />
-      <Input
-        autoFocus
-        label="Username"
-        placeholder="Enter your username"
-        isRequired
-        type="username"
-        variant="bordered"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <Spacer y={2} />
-      <Input
-        autoFocus
-        label="Email"
-        placeholder="Enter your email"
-        isRequired
-        type="email"
-        variant="bordered"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <Spacer y={2} />
-      <Input
-        isRequired
-        label="Password"
-        placeholder="Enter your password"
-        type="password"
-        variant="bordered"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <Spacer y={4} />
-      <div className="flex flex-col">
-        <Button color="primary" onClick={handleRegister} disabled={loading}>
-          Register
-        </Button>
+    <div className="flex justify-center items-center h-screen">
+      <div className="flex flex-col h-full justify-center text-start md:w-[30vw] sm:w-[60vw]">
+        <h1>Register</h1>
+        <Spacer y={4} />
+        <Input
+          autoFocus
+          label="Username"
+          placeholder="Enter your username"
+          isRequired
+          type="username"
+          variant="bordered"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
         <Spacer y={2} />
-        <Link color="primary" href="login" size="sm">
-          Do you already have an account? Log in!
-        </Link>
+        <Input
+          autoFocus
+          label="Email"
+          placeholder="Enter your email"
+          isRequired
+          type="email"
+          variant="bordered"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <Spacer y={2} />
+        <Input
+          isRequired
+          label="Password"
+          placeholder="Enter your password"
+          type="password"
+          variant="bordered"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <Spacer y={4} />
+        <div className="flex flex-col">
+          <Button color="primary" onClick={handleRegister} disabled={loading}>
+            Register
+          </Button>
+          <Spacer y={2} />
+          <Link color="primary" href="login" size="sm">
+            Do you already have an account? Log in!
+          </Link>
+        </div>
+        <AlertPopup
+          show={showPopup}
+          message={popupMessage}
+          onClose={() => setShowPopup(false)}
+        />
       </div>
-      <AlertPopup
-        show={showPopup}
-        message={popupMessage}
-        onClose={() => setShowPopup(false)}
-      />
     </div>
   );
 };

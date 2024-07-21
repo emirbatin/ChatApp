@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
+const userModel = require("../models/userModel");
 
-exports.authenticateUser = (req, res, next) => {
+exports.authenticateUser = async (req, res, next) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
 
   if (!token) {
@@ -9,10 +10,26 @@ exports.authenticateUser = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+
+    const user = await userModel.findById(decoded.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({ message: "Invalid token" });
+    console.error("Error in authenticateUser middleware:", error.message);
+    if (error.name === "TokenExpiredError") {
+      return res
+        .status(401)
+        .json({ message: "Token expired, please login again" });
+    }
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
