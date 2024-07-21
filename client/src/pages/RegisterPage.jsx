@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Input, Link, Spacer, Button } from "@nextui-org/react";
 import AlertPopup from "../components/AlertPopup";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const RegisterPage = () => {
   const [username, setUsername] = useState("");
@@ -12,8 +13,9 @@ const RegisterPage = () => {
   const [popupMessage, setPopupMessage] = useState("");
 
   const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     setLoading(true);
     if (!username || !email || !password) {
       setPopupMessage("All fields are required");
@@ -26,11 +28,25 @@ const RegisterPage = () => {
       setLoading(false);
       return;
     } else {
-      console.log("Registration Successful");
-      navigate("/chat");
+      try {
+        const payload = { username, email, password };
+        console.log("Sending registration data:", payload);
+
+        const response = await axios.post(`${apiUrl}/api/users/register`, payload);
+        console.log("Registration Successful", response.data);
+
+        const { token } = response.data;
+        localStorage.setItem("authToken", token); // Token'ı localStorage'a kaydet
+
+        navigate("/chat");
+      } catch (error) {
+        console.error("Registration failed:", error.response ? error.response.data : error.message);
+        setPopupMessage("Registration failed. Please try again.");
+        setShowPopup(true);
+      } finally {
+        setLoading(false);
+      }
     }
-    console.log("register", { username, email, password });
-    setLoading(false);
   };
 
   return (
@@ -70,7 +86,7 @@ const RegisterPage = () => {
       />
       <Spacer y={4} />
       <div className="flex flex-col">
-        <Button color="primary" onClick={handleRegister}>
+        <Button color="primary" onClick={handleRegister} disabled={loading}>
           Register
         </Button>
         <Spacer y={2} />
