@@ -55,14 +55,31 @@ exports.getMessages = async (req, res) => {
     }
 
     const decryptedMessages = conversation.messages.map((msg) => {
-      const decryptedMessage = decrypt({
-        iv: msg.iv,
-        encryptedData: msg.message,
-      });
-      return {
-        ...msg._doc,
-        message: decryptedMessage,
-      };
+      try {
+        const decryptedMessage = decrypt({
+          iv: msg.iv,
+          encryptedData: msg.message,
+        });
+        return {
+          ...msg._doc,
+          message: decryptedMessage,
+        };
+      } catch (err) {
+        console.error(
+          "Decryption error for message:",
+          msg._id,
+          "IV:",
+          msg.iv,
+          "EncryptedData:",
+          msg.message,
+          "Error:",
+          err.message
+        );
+        return {
+          ...msg._doc,
+          message: "Decryption failed",
+        };
+      }
     });
 
     res.status(200).json(decryptedMessages);

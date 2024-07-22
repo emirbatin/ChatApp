@@ -1,7 +1,10 @@
 const crypto = require("crypto");
 
 const algorithm = "aes-256-cbc";
-const key = crypto.randomBytes(32); // Anahtarınızı güvenli bir şekilde saklayın
+const key = Buffer.from(
+  "a673d5cb5e4c15228f60adaa63a66bb7724fe90e3feb0ed9ce4832bc91b067ec",
+  "hex"
+);
 
 function encrypt(text) {
   const iv = crypto.randomBytes(16); // Initialization vector
