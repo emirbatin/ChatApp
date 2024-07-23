@@ -1,35 +1,61 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import Signup from "./pages/SignupPage";
+import "./App.css";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import Login from "./pages/LoginPage";
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import io from "socket.io-client";
+import { setSocket } from "./redux/socketSlice";
+import { setOnlineUsers } from "./redux/userSlice";
+import { BASE_URL } from "./main";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <HomePage />,
+  },
+  {
+    path: "/signup",
+    element: <Signup />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+]);
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { authUser } = useSelector((store) => store.user);
+  const { socket } = useSelector((store) => store.socket);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (authUser) {
+      const socketio = io(`${BASE_URL}`, {
+        query: {
+          userId: authUser._id,
+        },
+      });
+      dispatch(setSocket(socketio));
+
+      socketio?.on("getOnlineUsers", (onlineUsers) => {
+        dispatch(setOnlineUsers(onlineUsers));
+      });
+      return () => socketio.close();
+    } else {
+      if (socket) {
+        socket.close();
+        dispatch(setSocket(null));
+      }
+    }
+  }, [authUser]);
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="p-4 h-screen flex items-center justify-center">
+      <RouterProvider router={router} />
+    </div>
+  );
 }
 
-export default App
+export default App;

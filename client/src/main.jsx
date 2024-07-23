@@ -1,14 +1,25 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import { Toaster } from "react-hot-toast";
+import { Provider } from "react-redux";
+import store from './redux/store';
+import { PersistGate } from 'redux-persist/integration/react'
+import { persistStore } from 'redux-persist';
 
-import {NextUIProvider} from '@nextui-org/react'
+let persistor = persistStore(store);
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+export const BASE_URL="http://localhost:8080"
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
   <React.StrictMode>
-    <NextUIProvider>
-      <App />
-    </NextUIProvider>
-  </React.StrictMode>,
-)
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <App />
+        <Toaster />
+      </PersistGate>
+    </Provider>
+  </React.StrictMode>
+);
