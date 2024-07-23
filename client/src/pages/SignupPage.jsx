@@ -37,7 +37,11 @@ const Signup = () => {
         toast.success(res.data.message);
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      if (error.response && error.response.status === 401) {
+        toast.error("User not authenticated.");
+      } else {
+        toast.error(error.response?.data?.message || "An error occurred.");
+      }
       console.log(error);
     }
     setUser({
@@ -48,7 +52,7 @@ const Signup = () => {
       gender: "",
     });
   };
-
+  
   return (
     <div className="min-w-[32rem] mx-auto">
       <div className="w-full p-0 rounded-lg bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10">
