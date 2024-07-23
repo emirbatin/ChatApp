@@ -16,15 +16,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-const corsOption = {
+const corsOptions = {
   origin: ["https://chatapp-psi-rouge.vercel.app", "http://localhost:3000"],
-  methods: "GET,POST",
-  allowedHeaders: "Content-Type,Authorization",
   credentials: true,
 };
 
-app.use(cors(corsOption));
-app.options("*", cors(corsOption)); // Preflight OPTIONS request
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
