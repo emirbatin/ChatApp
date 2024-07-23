@@ -10,7 +10,6 @@ const io = new Server(server, {
     origin: [process.env.CLIENT_URL, "http://localhost:3000"],
     methods: ["GET", "POST"],
     credentials: true,
-    optionsSuccessStatus: 200,
   },
 });
 
