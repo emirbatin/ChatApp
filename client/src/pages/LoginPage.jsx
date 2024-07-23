@@ -5,8 +5,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setAuthUser } from "../redux/userSlice";
 import { BASE_URL } from "../main";
-import { Input, Spacer, Button } from "@nextui-org/react";
-import api from "../utils/api";
+import { Input,Spacer, Button } from "@nextui-org/react";
 
 const Login = () => {
   const [user, setUser] = useState({
@@ -19,23 +18,19 @@ const Login = () => {
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post("/api/v1/user/login", user);
+      const res = await axios.post(`${BASE_URL}/api/v1/user/login`, user, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
       navigate("/");
       console.log(res);
       dispatch(setAuthUser(res.data));
     } catch (error) {
-      if (error.response) {
-        toast.error(error.response.data.message || "An error occurred");
-        console.error("Response error:", error.response.data);
-      } else if (error.request) {
-        toast.error("No response from server");
-        console.error("Request error:", error.request);
-      } else {
-        toast.error("An error occurred");
-        console.error("Error:", error.message);
-      }
+      toast.error(error.response.data.message);
+      console.log(error);
     }
-
     setUser({
       username: "",
       password: "",
@@ -45,7 +40,7 @@ const Login = () => {
     <div className="min-w-[32rem] mx-auto">
       <div className="w-full p-0 rounded-lg bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10">
         <h1 className="text-3xl font-bold text-left">Login</h1>
-        <Spacer y={4} />
+        <Spacer y={4}/>
         <form onSubmit={onSubmitHandler} action="">
           <div>
             <Input
@@ -57,7 +52,7 @@ const Login = () => {
               onChange={(e) => setUser({ ...user, username: e.target.value })}
             />
           </div>
-          <Spacer y={4} />
+          <Spacer y={4}/>
           <div>
             <Input
               label="Password"
@@ -68,19 +63,18 @@ const Login = () => {
               onChange={(e) => setUser({ ...user, password: e.target.value })}
             />
           </div>
-          <Spacer y={4} />
+          <Spacer y={4}/>
           <div>
-            <Button type="submit" color="primary">
+            <Button
+              type="submit"
+              color="primary"
+            >
               Login
             </Button>
           </div>
-          <Spacer y={4} />
+          <Spacer y={4}/>
           <p className="text-sm text-center my-2">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-blue-500">
-              {" "}
-              Signup{" "}
-            </Link>
+            Don't have an account? <Link to="/signup" className="text-blue-500"> Signup </Link>
           </p>
         </form>
       </div>

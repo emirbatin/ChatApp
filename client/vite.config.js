@@ -1,19 +1,21 @@
+// vite.config.js
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
+  base: "/",
+  build: {
+    outDir: "dist",
+  },
   server: {
     port: 3000,
     proxy: {
       "/api": {
-        target: "https://chatapp-api-six.vercel.app",
+        target: "http://localhost:8080",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
   },
   plugins: [react()],
-  build: {
-    outDir: "dist", // Vite build çıktısını dist klasörüne alır
-  },
 });

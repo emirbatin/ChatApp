@@ -17,24 +17,17 @@ app.use(express.json());
 app.use(cookieParser());
 
 const corsOption = {
-  origin: ["https://chatappclient-six.vercel.app", "http://localhost:3000"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  origin: ["http://localhost:3000", "https://chatappclient-six.vercel.app"],
+  methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH",
+  allowedHeaders: "Content-Type,Authorization",
   credentials: true,
 };
 
 app.use(cors(corsOption));
-
 app.options("*", cors(corsOption)); // Preflight OPTIONS request
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Credentials", true);
-  next();
-});
-
-app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
-  console.log("Headers:", req.headers);
   next();
 });
 
