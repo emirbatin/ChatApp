@@ -20,9 +20,9 @@ const Login = () => {
     try {
       const res = await axios.post(`${BASE_URL}/api/v1/user/login`, user, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json'
         },
-        withCredentials: true,
+        withCredentials: true
       });
       navigate("/");
       console.log(res);
@@ -33,9 +33,9 @@ const Login = () => {
     }
     setUser({
       username: "",
-      password: "",
-    });
-  };
+      password: ""
+    })
+  }
   return (
     <div className="min-w-[32rem] mx-auto">
       <div className="w-full p-0 rounded-lg bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10">
