@@ -18,12 +18,13 @@ const Sidebar = () => {
   const [search, setSearch] = useState("");
   const { otherUsers } = useSelector((store) => store.user);
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
 
   const logoutHandler = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/v1/user/logout`);
+      const res = await axios.get(`${BASE_URL}/api/v1/user/logout`, {
+        withCredentials: true,
+      });
       navigate("/login");
       toast.success(res.data.message);
       dispatch(setAuthUser(null));
@@ -34,6 +35,7 @@ const Sidebar = () => {
       console.log(error);
     }
   };
+
   const searchSubmitHandler = (e) => {
     e.preventDefault();
     const conversationUser = otherUsers?.find((user) =>
@@ -45,15 +47,12 @@ const Sidebar = () => {
       toast.error("User not found!");
     }
   };
+
   return (
     <div className="border-r-1 p-4 flex flex-col">
       <h1>ChatApp</h1>
-      <Spacer y={4}/>
-      <form
-        onSubmit={searchSubmitHandler}
-        action=""
-        className="flex items-center gap-2"
-      >
+      <Spacer y={4} />
+      <form onSubmit={searchSubmitHandler} className="flex items-center gap-2">
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -65,7 +64,7 @@ const Sidebar = () => {
           <BiSearchAlt2 className="w-6 h-6 outline-none" />
         </Button>
       </form>
-      <Spacer y={4}/>
+      <Spacer y={4} />
       <div className="divider px-3"></div>
       <OtherUsers />
       <div className="mt-2">

@@ -5,7 +5,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setAuthUser } from "../redux/userSlice";
 import { BASE_URL } from "../main";
-import { Input,Spacer, Button } from "@nextui-org/react";
+import { Input, Spacer, Button } from "@nextui-org/react";
 
 const Login = () => {
   const [user, setUser] = useState({
@@ -25,7 +25,6 @@ const Login = () => {
         withCredentials: true,
       });
       navigate("/");
-      console.log(res);
       dispatch(setAuthUser(res.data));
     } catch (error) {
       toast.error(error.response.data.message);
@@ -36,12 +35,13 @@ const Login = () => {
       password: "",
     });
   };
+
   return (
     <div className="min-w-[32rem] mx-auto">
       <div className="w-full p-0 rounded-lg bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10">
         <h1 className="text-3xl font-bold text-left">Login</h1>
-        <Spacer y={4}/>
-        <form onSubmit={onSubmitHandler} action="">
+        <Spacer y={4} />
+        <form onSubmit={onSubmitHandler}>
           <div>
             <Input
               autoFocus
@@ -52,7 +52,7 @@ const Login = () => {
               onChange={(e) => setUser({ ...user, username: e.target.value })}
             />
           </div>
-          <Spacer y={4}/>
+          <Spacer y={4} />
           <div>
             <Input
               label="Password"
@@ -63,23 +63,23 @@ const Login = () => {
               onChange={(e) => setUser({ ...user, password: e.target.value })}
             />
           </div>
-          <Spacer y={4}/>
+          <Spacer y={4} />
           <div>
-            <Button
-              type="submit"
-              color="primary"
-            >
+            <Button type="submit" color="primary">
               Login
             </Button>
           </div>
-          <Spacer y={4}/>
+          <Spacer y={4} />
           <p className="text-sm text-center my-2">
-            Don't have an account? <Link to="/signup" className="text-blue-500"> Signup </Link>
+            Don't have an account?{" "}
+            <Link to="/signup" className="text-blue-500">
+              {" "}
+              Signup{" "}
+            </Link>
           </p>
         </form>
       </div>
     </div>
   );
 };
-
 export default Login;
