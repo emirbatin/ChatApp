@@ -19,8 +19,8 @@ const Signup = () => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  const handleCheckbox = (gender) => {
-    setUser({ ...user, gender });
+  const handleCheckbox = (e) => {
+    setUser({ ...user, gender: e.target.value });
   };
 
   const onSubmitHandler = async (e) => {
@@ -107,16 +107,29 @@ const Signup = () => {
           </div>
           <Spacer y={4} />
           <div>
-            <select
-              name="gender"
-              onChange={handleChange}
-              value={user.gender}
-              required
-            >
-              <option value="" disabled>Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
+            <label className="block text-sm font-medium text-gray-700">Choose Your Gender</label>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="male"
+                name="gender"
+                value="male"
+                checked={user.gender === "male"}
+                onChange={handleCheckbox}
+                className="mr-2"
+              />
+              <label htmlFor="male" className="mr-4">Male</label>
+              <input
+                type="checkbox"
+                id="female"
+                name="gender"
+                value="female"
+                checked={user.gender === "female"}
+                onChange={handleCheckbox}
+                className="mr-2"
+              />
+              <label htmlFor="female">Female</label>
+            </div>
           </div>
           <Spacer y={4} />
           <div>

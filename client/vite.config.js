@@ -13,5 +13,8 @@ export default defineConfig({
       },
     },
   },
+  optimizeDeps: {
+    include: ["react-hot-toast"],
+  },
   plugins: [react()],
 });
