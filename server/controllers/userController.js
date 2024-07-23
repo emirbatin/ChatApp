@@ -9,14 +9,14 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
     if (password !== confirmPassword) {
-      return res.status(400).json({ message: "Password do not match" });
+      return res.status(400).json({ message: "Passwords do not match" });
     }
 
     const user = await User.findOne({ username });
     if (user) {
       return res
         .status(400)
-        .json({ message: "Username already exit try different" });
+        .json({ message: "Username already exists, try a different one" });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -37,6 +37,7 @@ export const register = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 export const login = async (req, res) => {
@@ -63,16 +64,19 @@ export const login = async (req, res) => {
       userId: user._id,
     };
 
-    const token = await jwt.sign(tokenData, process.env.JWT_SECRET_KEY, {
+    const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, {
       expiresIn: "1d",
     });
+
+    const isProduction = process.env.NODE_ENV === "production";
 
     return res
       .status(200)
       .cookie("token", token, {
-        maxAge: 1 * 24 * 60 * 60 * 1000,
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
         httpOnly: true,
-        sameSite: "strict",
+        secure: isProduction, // Sadece HTTPS üzerinden gönderilecek
+        sameSite: isProduction ? "None" : "Lax", // CORS isteklerinde çerez gönderimini etkinleştirmek için
       })
       .json({
         _id: user._id,
@@ -82,17 +86,20 @@ export const login = async (req, res) => {
       });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 export const logout = (req, res) => {
   try {
     return res.status(200).cookie("token", "", { maxAge: 0 }).json({
-      message: "logged out successfully.",
+      message: "Logged out successfully.",
     });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
 export const getOtherUsers = async (req, res) => {
   try {
     const loggedInUserId = req.id;
@@ -102,5 +109,6 @@ export const getOtherUsers = async (req, res) => {
     return res.status(200).json(otherUsers);
   } catch (error) {
     console.log(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
