@@ -1,7 +1,7 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import userReducer from "./userSlice.js";
-import messageReducer from "./messageSlice.js";
-import socketReducer from "./socketSlice.js";
+import userReducer from "./userSlice";
+import messageReducer from "./messageSlice";
+import socketReducer from "./socketSlice";
 import {
   persistReducer,
   FLUSH,
@@ -17,6 +17,7 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage,
+  whitelist: ["user", "message"], // Persist only user and message reducers
 };
 
 const rootReducer = combineReducers({
@@ -36,4 +37,5 @@ const store = configureStore({
       },
     }),
 });
+
 export default store;
