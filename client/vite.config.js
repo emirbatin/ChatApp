@@ -13,4 +13,7 @@ export default defineConfig({
     },
   },
   plugins: [react()],
+  build: {
+    outDir: "dist", // Vite build çıktısını dist klasörüne alır
+  },
 });
