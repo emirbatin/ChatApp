@@ -17,9 +17,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 const corsOption = {
-  origin: ["http://localhost:3000", "https://chatappclient-six.vercel.app"],
-  methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH",
-  allowedHeaders: "Content-Type,Authorization",
+  origin: true, // Tüm originlere izin ver
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
 
