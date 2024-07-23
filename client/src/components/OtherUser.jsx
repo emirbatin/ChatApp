@@ -1,15 +1,17 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedUser } from "../redux/userSlice";
-import { Card, CardHeader, Avatar, Spacer } from "@nextui-org/react";
+import { Card, CardHeader, Avatar } from "@nextui-org/react";
 
 const OtherUser = ({ user }) => {
   const dispatch = useDispatch();
-  const { selectedUser, onlineUsers } = useSelector((store) => store.user);
-  const isOnline = onlineUsers?.includes(user._id);
+  const { onlineUsers } = useSelector((store) => store.user);
+  const isOnline = onlineUsers.includes(user._id);
+
   const selectedUserHandler = (user) => {
     dispatch(setSelectedUser(user));
   };
+
   return (
     <Card
       isPressable
@@ -26,9 +28,7 @@ const OtherUser = ({ user }) => {
               isBordered
               radius="full"
               size="md"
-              src={
-                user?.profilePhoto || "https://nextui.org/avatars/avatar-1.png"
-              }
+              src={user?.profilePhoto || "https://nextui.org/avatars/avatar-1.png"}
             />
           </div>
           <div className="flex flex-col gap-1 text-start">
@@ -37,12 +37,7 @@ const OtherUser = ({ user }) => {
             </h4>
           </div>
         </div>
-        {/* user is online? */}
-        <div
-          className={`text-4xl ${
-            isOnline ? "text-green-500" : "text-gray-500"
-          }`}
-        >
+        <div className={`text-4xl ${isOnline ? "text-green-500" : "text-gray-500"}`}>
           •
         </div>
       </CardHeader>

@@ -8,9 +8,9 @@ const Messages = () => {
   useGetMessages();
   useGetRealTimeMessage();
   const { messages } = useSelector((store) => store.message);
+  const { selectedUser } = useSelector((store) => store.user);
 
-  // Ensure messages is always an array
-  const messageArray = Array.isArray(messages) ? messages : [];
+  const messageArray = selectedUser && messages[selectedUser._id] ? [...messages[selectedUser._id]] : [];
 
   return (
     <div className="px-4 flex-1 overflow-auto">

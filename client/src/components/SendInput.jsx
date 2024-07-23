@@ -2,15 +2,14 @@ import React, { useState } from "react";
 import { IoSend } from "react-icons/io5";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { setMessages } from "../redux/messageSlice";
+import { addMessage } from "../redux/messageSlice";
 import { BASE_URL } from "../main";
-import { Input, Spacer, Button } from "@nextui-org/react";
+import { Input, Button } from "@nextui-org/react";
 
 const SendInput = () => {
   const [message, setMessage] = useState("");
   const dispatch = useDispatch();
   const { selectedUser } = useSelector((store) => store.user);
-  const { messages } = useSelector((store) => store.message);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -25,12 +24,13 @@ const SendInput = () => {
           withCredentials: true,
         }
       );
-      dispatch(setMessages([...messages, res?.data?.newMessage]));
+      dispatch(addMessage({ userId: selectedUser._id, message: res.data.newMessage }));
     } catch (error) {
       console.log(error);
     }
     setMessage("");
   };
+
   return (
     <form onSubmit={onSubmitHandler} className="px-4 my-3">
       <div className="w-full relative mb-4">

@@ -1,14 +1,16 @@
+import React from "react";
 import Signup from "./pages/SignupPage";
 import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import Login from "./pages/LoginPage";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import io from "socket.io-client";
-import { setSocket } from "./redux/socketSlice";
+import { setSocketConnected, setSocketError } from "./redux/socketSlice";
 import { setOnlineUsers } from "./redux/userSlice";
+import { initializeSocket, isSocketInitialized } from "./services/socketService";
 import { BASE_URL } from "./main";
+import ErrorBoundary from "./ErrorBoundary";
 
 const router = createBrowserRouter([
   {
@@ -27,34 +29,38 @@ const router = createBrowserRouter([
 
 function App() {
   const { authUser } = useSelector((store) => store.user);
-  const { socket } = useSelector((store) => store.socket);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (authUser) {
-      const socketio = io(`${BASE_URL}`, {
-        query: {
-          userId: authUser._id,
-        },
-      });
-      dispatch(setSocket(socketio));
+    if (authUser && !isSocketInitialized()) {
+      const socket = initializeSocket(authUser._id);
 
-      socketio?.on("getOnlineUsers", (onlineUsers) => {
+      socket.on("connect", () => {
+        dispatch(setSocketConnected(true));
+      });
+
+      socket.on("disconnect", () => {
+        dispatch(setSocketConnected(false));
+      });
+
+      socket.on("connect_error", (error) => {
+        dispatch(setSocketError(error.message));
+      });
+
+      socket.on("getOnlineUsers", (onlineUsers) => {
         dispatch(setOnlineUsers(onlineUsers));
       });
-      return () => socketio.close();
-    } else {
-      if (socket) {
-        socket.close();
-        dispatch(setSocket(null));
-      }
+
+      return () => socket.close();
     }
-  }, [authUser]);
+  }, [authUser, dispatch]);
 
   return (
-    <div className="p-4 h-screen flex items-center justify-center">
-      <RouterProvider router={router} />
-    </div>
+    <ErrorBoundary>
+      <div className="p-4 h-screen flex items-center justify-center">
+        <RouterProvider router={router} />
+      </div>
+    </ErrorBoundary>
   );
 }
 

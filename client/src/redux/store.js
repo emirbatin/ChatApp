@@ -17,7 +17,6 @@ const persistConfig = {
   key: "root",
   version: 1,
   storage,
-  whitelist: ["user", "message"], // Persist only user and message reducers
 };
 
 const rootReducer = combineReducers({
@@ -34,6 +33,7 @@ const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+        ignoredPaths: ["socket.socket"],
       },
     }),
 });
