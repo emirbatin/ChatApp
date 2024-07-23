@@ -16,14 +16,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-const corsOptions = {
+const corsOption = {
   origin: ["https://chatappclient-six.vercel.app", "http://localhost:3000"],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
 
-app.use(cors(corsOptions));
+app.use(cors(corsOption));
 
 app.options("*", cors(corsOption)); // Preflight OPTIONS request
 
