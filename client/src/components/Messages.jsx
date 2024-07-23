@@ -8,12 +8,19 @@ const Messages = () => {
   useGetMessages();
   useGetRealTimeMessage();
   const { messages } = useSelector((store) => store.message);
+
+  // Ensure messages is always an array
+  const messageArray = Array.isArray(messages) ? messages : [];
+
   return (
     <div className="px-4 flex-1 overflow-auto">
-      {messages &&
-        messages?.map((message) => {
-          return <Message key={message._id} message={message} />;
-        })}
+      {messageArray.length > 0 ? (
+        messageArray.map((message) => (
+          <Message key={message._id} message={message} />
+        ))
+      ) : (
+        <div></div>
+      )}
     </div>
   );
 };
