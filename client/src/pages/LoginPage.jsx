@@ -5,13 +5,12 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setAuthUser } from "../redux/userSlice";
 import { BASE_URL } from "../main";
-import { Input, Spacer, Button, Checkbox } from "@nextui-org/react";
+import { Input,Spacer, Button } from "@nextui-org/react";
 
 const Login = () => {
   const [user, setUser] = useState({
     username: "",
     password: "",
-    rememberMe: false,
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -25,13 +24,9 @@ const Login = () => {
         },
         withCredentials: true,
       });
-      if (user.rememberMe) {
-        localStorage.setItem("token", res.data.token);
-      } else {
-        sessionStorage.setItem("token", res.data.token);
-      }
-      dispatch(setAuthUser(res.data));
       navigate("/");
+      console.log(res);
+      dispatch(setAuthUser(res.data));
     } catch (error) {
       toast.error(error.response.data.message);
       console.log(error);
@@ -39,15 +34,13 @@ const Login = () => {
     setUser({
       username: "",
       password: "",
-      rememberMe: false,
     });
   };
-
   return (
     <div className="min-w-[32rem] mx-auto">
       <div className="w-full p-0 rounded-lg bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10">
         <h1 className="text-3xl font-bold text-left">Login</h1>
-        <Spacer y={4} />
+        <Spacer y={4}/>
         <form onSubmit={onSubmitHandler} action="">
           <div>
             <Input
@@ -59,7 +52,7 @@ const Login = () => {
               onChange={(e) => setUser({ ...user, username: e.target.value })}
             />
           </div>
-          <Spacer y={4} />
+          <Spacer y={4}/>
           <div>
             <Input
               label="Password"
@@ -70,30 +63,18 @@ const Login = () => {
               onChange={(e) => setUser({ ...user, password: e.target.value })}
             />
           </div>
-          <Spacer y={4} />
+          <Spacer y={4}/>
           <div>
-            <Checkbox
-              isSelected={user.rememberMe}
-              onChange={(isSelected) =>
-                setUser({ ...user, rememberMe: isSelected })
-              }
+            <Button
+              type="submit"
+              color="primary"
             >
-              Remember Me
-            </Checkbox>
-          </div>
-          <Spacer y={4} />
-          <div>
-            <Button type="submit" color="primary">
               Login
             </Button>
           </div>
-          <Spacer y={4} />
+          <Spacer y={4}/>
           <p className="text-sm text-center my-2">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-blue-500">
-              {" "}
-              Signup{" "}
-            </Link>
+            Don't have an account? <Link to="/signup" className="text-blue-500"> Signup </Link>
           </p>
         </form>
       </div>

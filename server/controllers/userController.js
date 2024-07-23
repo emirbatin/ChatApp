@@ -9,14 +9,14 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
     if (password !== confirmPassword) {
-      return res.status(400).json({ message: "Passwords do not match" });
+      return res.status(400).json({ message: "Password do not match" });
     }
 
     const user = await User.findOne({ username });
     if (user) {
       return res
         .status(400)
-        .json({ message: "Username already exists, try a different one" });
+        .json({ message: "Username already exit try different" });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -37,13 +37,11 @@ export const register = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Server error" });
   }
 };
-
 export const login = async (req, res) => {
   try {
-    const { username, password, rememberMe } = req.body;
+    const { username, password } = req.body;
     if (!username || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -65,19 +63,16 @@ export const login = async (req, res) => {
       userId: user._id,
     };
 
-    const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, {
-      expiresIn: rememberMe ? "7d" : "1d", // rememberMe'ye göre ayarla
+    const token = await jwt.sign(tokenData, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1d",
     });
-
-    const isProduction = process.env.NODE_ENV === "production";
 
     return res
       .status(200)
       .cookie("token", token, {
-        maxAge: rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000, // rememberMe'ye göre ayarla
+        maxAge: 1 * 24 * 60 * 60 * 1000,
         httpOnly: true,
-        secure: isProduction,
-        sameSite: "None",
+        sameSite: "strict",
       })
       .json({
         _id: user._id,
@@ -87,10 +82,8 @@ export const login = async (req, res) => {
       });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Server error" });
   }
 };
-
 export const logout = (req, res) => {
   try {
     return res.status(200).cookie("token", "", { maxAge: 0 }).json({
@@ -98,10 +91,8 @@ export const logout = (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Server error" });
   }
 };
-
 export const getOtherUsers = async (req, res) => {
   try {
     const loggedInUserId = req.id;
@@ -111,6 +102,5 @@ export const getOtherUsers = async (req, res) => {
     return res.status(200).json(otherUsers);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Server error" });
   }
 };
