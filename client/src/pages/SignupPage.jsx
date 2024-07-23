@@ -107,8 +107,7 @@ const Signup = () => {
           </div>
           <Spacer y={4} />
           <div>
-            <label className="block text-sm font-medium text-gray-700">Choose your gender</label>
-            <Spacer y={1} />
+            <label className="block text-sm font-medium text-gray-700">Choose Your Gender</label>
             <div className="flex items-center">
               <input
                 type="checkbox"
