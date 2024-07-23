@@ -15,8 +15,14 @@ const PORT = process.env.PORT || 5000;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+
 const corsOption = {
-  origin: "https://chatappclient-six.vercel.app",
+  origin:
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : "https://chatappclient-six.vercel.app",
+  methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH",
+  allowedHeaders: "Content-Type,Authorization",
   credentials: true,
 };
 app.use(cors(corsOption));
