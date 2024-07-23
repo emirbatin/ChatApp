@@ -3,18 +3,16 @@ import http from "http";
 import express from "express";
 
 const app = express();
-
 const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: {
     origin: ["https://chatapp-psi-rouge.vercel.app", "http://localhost:3000"],
     methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   },
 });
-
-export const getReceiverSocketId = (receiverId) => {
-  return userSocketMap[receiverId];
-};
 
 const userSocketMap = {}; // {userId->socketId}
 
@@ -23,7 +21,6 @@ io.on("connection", (socket) => {
   if (userId !== undefined) {
     userSocketMap[userId] = socket.id;
   }
-
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   socket.on("disconnect", () => {
@@ -31,5 +28,9 @@ io.on("connection", (socket) => {
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
+
+export const getReceiverSocketId = (receiverId) => {
+  return userSocketMap[receiverId];
+};
 
 export { app, io, server };
