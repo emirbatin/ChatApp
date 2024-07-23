@@ -17,24 +17,19 @@ app.use(express.json());
 app.use(cookieParser());
 
 const corsOption = {
-  origin: function (origin, callback) {
-    if (
-      !origin ||
-      ["http://localhost:3000", "https://chatappclient-six.vercel.app"].indexOf(
-        origin
-      ) !== -1
-    ) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: ["http://localhost:3000", "https://chatappclient-six.vercel.app"],
   methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH",
   allowedHeaders: "Content-Type,Authorization",
   credentials: true,
 };
 
 app.use(cors(corsOption));
+app.options("*", cors(corsOption)); // Preflight OPTIONS request
+
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
 
 // Routes
 app.use("/api/v1/user", userRoute);
