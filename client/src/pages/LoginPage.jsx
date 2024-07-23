@@ -5,12 +5,13 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setAuthUser } from "../redux/userSlice";
 import { BASE_URL } from "../main";
-import { Input, Spacer, Button } from "@nextui-org/react";
+import { Input, Spacer, Button, Checkbox } from "@nextui-org/react";
 
 const Login = () => {
   const [user, setUser] = useState({
     username: "",
     password: "",
+    rememberMe: false,
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -24,8 +25,13 @@ const Login = () => {
         },
         withCredentials: true,
       });
-      navigate("/");
+      if (user.rememberMe) {
+        localStorage.setItem("token", res.data.token);
+      } else {
+        sessionStorage.setItem("token", res.data.token);
+      }
       dispatch(setAuthUser(res.data));
+      navigate("/");
     } catch (error) {
       toast.error(error.response.data.message);
       console.log(error);
@@ -33,6 +39,7 @@ const Login = () => {
     setUser({
       username: "",
       password: "",
+      rememberMe: false,
     });
   };
 
@@ -41,7 +48,7 @@ const Login = () => {
       <div className="w-full p-0 rounded-lg bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10">
         <h1 className="text-3xl font-bold text-left">Login</h1>
         <Spacer y={4} />
-        <form onSubmit={onSubmitHandler}>
+        <form onSubmit={onSubmitHandler} action="">
           <div>
             <Input
               autoFocus
@@ -65,6 +72,17 @@ const Login = () => {
           </div>
           <Spacer y={4} />
           <div>
+            <Checkbox
+              isSelected={user.rememberMe}
+              onChange={(isSelected) =>
+                setUser({ ...user, rememberMe: isSelected })
+              }
+            >
+              Remember Me
+            </Checkbox>
+          </div>
+          <Spacer y={4} />
+          <div>
             <Button type="submit" color="primary">
               Login
             </Button>
@@ -82,4 +100,5 @@ const Login = () => {
     </div>
   );
 };
+
 export default Login;

@@ -40,9 +40,10 @@ export const register = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 export const login = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, rememberMe } = req.body;
     if (!username || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -65,7 +66,7 @@ export const login = async (req, res) => {
     };
 
     const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, {
-      expiresIn: "1d",
+      expiresIn: rememberMe ? "7d" : "1d", // rememberMe'ye göre ayarla
     });
 
     const isProduction = process.env.NODE_ENV === "production";
@@ -73,10 +74,10 @@ export const login = async (req, res) => {
     return res
       .status(200)
       .cookie("token", token, {
-        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        maxAge: rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000, // rememberMe'ye göre ayarla
         httpOnly: true,
-        secure: isProduction, // Sadece HTTPS üzerinden gönderilecek
-        sameSite: isProduction ? "None" : "Lax", // CORS isteklerinde çerez gönderimini etkinleştirmek için
+        secure: isProduction,
+        sameSite: "None",
       })
       .json({
         _id: user._id,
@@ -89,6 +90,7 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 export const logout = (req, res) => {
   try {
     return res.status(200).cookie("token", "", { maxAge: 0 }).json({
