@@ -10,7 +10,7 @@ import { persistStore } from 'redux-persist';
 
 let persistor = persistStore(store);
 
-export const BASE_URL = import.meta.env.VITE_API_URL;
+export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
