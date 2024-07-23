@@ -1,21 +1,61 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import './App.css'
-import ChatPage from "./pages/ChatPage";
-import RegisterPage from "./pages/RegisterPage";
-import LoginPage from "./pages/LoginPage";
+import Signup from "./pages/SignupPage";
+import "./App.css";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import Login from "./pages/LoginPage";
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import io from "socket.io-client";
+import { setSocket } from "./redux/socketSlice";
+import { setOnlineUsers } from "./redux/userSlice";
+import { BASE_URL } from "./main";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <HomePage />,
+  },
+  {
+    path: "/signup",
+    element: <Signup />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+]);
 
 function App() {
+  const { authUser } = useSelector((store) => store.user);
+  const { socket } = useSelector((store) => store.socket);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (authUser) {
+      const socketio = io(`${BASE_URL}`, {
+        query: {
+          userId: authUser._id,
+        },
+      });
+      dispatch(setSocket(socketio));
+
+      socketio?.on("getOnlineUsers", (onlineUsers) => {
+        dispatch(setOnlineUsers(onlineUsers));
+      });
+      return () => socketio.close();
+    } else {
+      if (socket) {
+        socket.close();
+        dispatch(setSocket(null));
+      }
+    }
+  }, [authUser]);
 
   return (
-    <div className="App">
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<LoginPage/>} />
-        <Route path="/register" element={<RegisterPage/>} />
-        <Route path= "/chat" element={<ChatPage/>}></Route>
-      </Routes>
+    <div className="p-4 h-screen flex items-center justify-center">
+      <RouterProvider router={router} />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

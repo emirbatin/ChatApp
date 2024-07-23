@@ -1,90 +1,55 @@
-const Conversation = require("../models/conversationModel");
-const Message = require("../models/messageModel");
-const { encrypt, decrypt } = require("../utils/encryption");
+import { Conversation } from "../models/conversationModel.js";
+import { Message } from "../models/messageModel.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 
-exports.sendMessage = async (req, res) => {
-  try {
-    const { message } = req.body;
-    const { id: receiverId } = req.params;
-    const senderId = req.user._id;
+export const sendMessage = async (req,res) => {
+    try {
+        const senderId = req.id;
+        const receiverId = req.params.id;
+        const {message} = req.body;
 
-    let conversation = await Conversation.findOne({
-      participants: { $all: [senderId, receiverId] },
-    });
-
-    if (!conversation) {
-      conversation = await Conversation.create({
-        participants: [senderId, receiverId],
-        messages: [],
-      });
-    }
-
-    const encryptedMessage = encrypt(message);
-    const newMessage = new Message({
-      senderId,
-      receiverId,
-      message: encryptedMessage.encryptedData,
-      iv: encryptedMessage.iv,
-    });
-
-    await newMessage.save();
-
-    conversation.messages.push(newMessage._id);
-    await conversation.save();
-
-    res.status(201).json(newMessage);
-  } catch (error) {
-    console.error("Error sending message:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-exports.getMessages = async (req, res) => {
-  try {
-    const { id: userToChatId } = req.params;
-    const senderId = req.user._id;
-
-    const conversation = await Conversation.findOne({
-      participants: {
-        $all: [senderId, userToChatId],
-      },
-    }).populate("messages");
-
-    if (!conversation) {
-      return res.status(200).json([]);
-    }
-
-    const decryptedMessages = conversation.messages.map((msg) => {
-      try {
-        const decryptedMessage = decrypt({
-          iv: msg.iv,
-          encryptedData: msg.message,
+        let gotConversation = await Conversation.findOne({
+            participants:{$all : [senderId, receiverId]},
         });
-        return {
-          ...msg._doc,
-          message: decryptedMessage,
-        };
-      } catch (err) {
-        console.error(
-          "Decryption error for message:",
-          msg._id,
-          "IV:",
-          msg.iv,
-          "EncryptedData:",
-          msg.message,
-          "Error:",
-          err.message
-        );
-        return {
-          ...msg._doc,
-          message: "Decryption failed",
-        };
-      }
-    });
 
-    res.status(200).json(decryptedMessages);
-  } catch (error) {
-    console.log("Error in getMessages controller: ", error.message);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
+        if(!gotConversation){
+            gotConversation = await Conversation.create({
+                participants:[senderId, receiverId]
+            })
+        };
+        const newMessage = await Message.create({
+            senderId,
+            receiverId,
+            message
+        });
+        if(newMessage){
+            gotConversation.messages.push(newMessage._id);
+        };
+        
+
+        await Promise.all([gotConversation.save(), newMessage.save()]);
+         
+        // SOCKET IO
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        if(receiverSocketId){
+            io.to(receiverSocketId).emit("newMessage", newMessage);
+        }
+        return res.status(201).json({
+            newMessage
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
+export const getMessage = async (req,res) => {
+    try {
+        const receiverId = req.params.id;
+        const senderId = req.id;
+        const conversation = await Conversation.findOne({
+            participants:{$all : [senderId, receiverId]}
+        }).populate("messages"); 
+        return res.status(200).json(conversation?.messages);
+    } catch (error) {
+        console.log(error);
+    }
+}

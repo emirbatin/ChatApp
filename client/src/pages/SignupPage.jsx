@@ -1,47 +1,64 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
 import axios from "axios";
-import { useDispatch } from "react-redux";
-import { setAuthUser } from "../redux/userSlice";
+import toast from "react-hot-toast";
 import { BASE_URL } from "../main";
-import { Input,Spacer, Button } from "@nextui-org/react";
+import { Input, Spacer, Button } from "@nextui-org/react";
 
-const Login = () => {
+const Signup = () => {
   const [user, setUser] = useState({
+    fullName: "",
     username: "",
     password: "",
+    confirmPassword: "",
+    gender: "",
   });
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const handleCheckbox = (gender) => {
+    setUser({ ...user, gender });
+  };
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${BASE_URL}/api/v1/user/login`, user, {
+      const res = await axios.post(`${BASE_URL}/api/v1/user/register`, user, {
         headers: {
           "Content-Type": "application/json",
         },
         withCredentials: true,
       });
-      navigate("/");
-      console.log(res);
-      dispatch(setAuthUser(res.data));
+      if (res.data.success) {
+        navigate("/login");
+        toast.success(res.data.message);
+      }
     } catch (error) {
       toast.error(error.response.data.message);
       console.log(error);
     }
     setUser({
+      fullName: "",
       username: "",
       password: "",
+      confirmPassword: "",
+      gender: "",
     });
   };
   return (
     <div className="min-w-[32rem] mx-auto">
       <div className="w-full p-0 rounded-lg bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10">
-        <h1 className="text-3xl font-bold text-left">Login</h1>
+        <h1 className="text-3xl font-bold text-start">Signup</h1>
         <Spacer y={4}/>
         <form onSubmit={onSubmitHandler} action="">
+          <div>
+            <Input
+              autoFocus
+              label="Full Name"
+              placeholder="Enter your full name"
+              variant="bordered"
+              value={user.fullName}
+              onChange={(e) => setUser({ ...user, fullName: e.target.value })}
+            />
+          </div>
+          <Spacer y={4}/>
           <div>
             <Input
               autoFocus
@@ -65,16 +82,29 @@ const Login = () => {
           </div>
           <Spacer y={4}/>
           <div>
-            <Button
+            <Input
+              label="Confirm Password"
+              placeholder="Please confirm your password"
+              type="password"
+              variant="bordered"
+              value={user.confirmPassword}
+              onChange={(e) =>
+                setUser({ ...user, confirmPassword: e.target.value })
+              }
+            />
+          </div>
+          <Spacer y={4}/>
+          <div>
+          <Button
               type="submit"
               color="primary"
             >
-              Login
+              Signup
             </Button>
           </div>
           <Spacer y={4}/>
           <p className="text-sm text-center my-2">
-            Don't have an account? <Link to="/signup" className="text-blue-500"> Signup </Link>
+            Already have an account? <Link to="/login" className="text-blue-500"> Login </Link>
           </p>
         </form>
       </div>
@@ -82,4 +112,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;
