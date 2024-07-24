@@ -5,13 +5,14 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setAuthUser } from "../redux/userSlice";
 import { BASE_URL } from "../main";
-import { Input,Spacer, Button } from "@nextui-org/react";
+import { Input, Spacer, Button, Checkbox } from "@nextui-org/react"; // Checkbox bileşenini ekleyin
 
 const Login = () => {
   const [user, setUser] = useState({
     username: "",
     password: "",
   });
+  const [rememberMe, setRememberMe] = useState(false); // Remember Me state'i ekleyin
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -24,6 +25,14 @@ const Login = () => {
         },
         withCredentials: true
       });
+
+      // Token'ı localStorage veya sessionStorage'da sakla
+      if (rememberMe) {
+        localStorage.setItem("token", res.data.token);
+      } else {
+        sessionStorage.setItem("token", res.data.token);
+      }
+
       navigate("/");
       console.log(res);
       dispatch(setAuthUser(res.data));
@@ -34,8 +43,9 @@ const Login = () => {
     setUser({
       username: "",
       password: ""
-    })
-  }
+    });
+  };
+
   return (
     <div className="min-w-[32rem] mx-auto">
       <div className="w-full p-0 rounded-lg bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10">
@@ -62,6 +72,15 @@ const Login = () => {
               value={user.password}
               onChange={(e) => setUser({ ...user, password: e.target.value })}
             />
+          </div>
+          <Spacer y={4}/>
+          <div>
+            <Checkbox 
+              checked={rememberMe} 
+              onChange={(e) => setRememberMe(e.target.checked)}
+            >
+              Remember Me
+            </Checkbox>
           </div>
           <Spacer y={4}/>
           <div>
