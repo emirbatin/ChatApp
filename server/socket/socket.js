@@ -17,7 +17,7 @@ const io = new Server(server, {
 const userSocketMap = {}; // {userId->socketId}
 
 io.on("connection", (socket) => {
-  const token = socket.handshake.query.token; // Token'ı query parametre olarak alıyoruz
+  const token = socket.handshake.query.token;
 
   if (!token) {
     return socket.disconnect(true);
@@ -30,12 +30,11 @@ io.on("connection", (socket) => {
 
     const userId = decoded.userId;
     userSocketMap[userId] = socket.id;
-
-    io.emit("getOnlineUsers", Object.keys(userSocketMap));
+    io.emit("getOnlineUsers", Object.keys(userSocketMap)); // Online kullanıcılar listesini gönderin
 
     socket.on("disconnect", () => {
       delete userSocketMap[userId];
-      io.emit("getOnlineUsers", Object.keys(userSocketMap));
+      io.emit("getOnlineUsers", Object.keys(userSocketMap)); // Online kullanıcılar listesini gönderin
     });
   });
 });

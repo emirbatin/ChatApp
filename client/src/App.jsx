@@ -1,17 +1,19 @@
 import React from "react";
-import Signup from "./pages/SignupPage";
-import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import Login from "./pages/LoginPage";
+import Signup from "./pages/SignupPage";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setSocketConnected, setSocketError } from "./redux/socketSlice";
 import { setOnlineUsers } from "./redux/userSlice";
-import { initializeSocket, isSocketInitialized } from "./services/socketService";
+import {
+  initializeSocket,
+  isSocketInitialized,
+} from "./services/socketService";
 import { BASE_URL } from "./main";
 import ErrorBoundary from "./ErrorBoundary";
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -30,10 +32,6 @@ const router = createBrowserRouter([
     path: "/login",
     element: <Login />,
   },
-  {
-    path: "*",
-    element: <h1>404 Not Found</h1>,
-  }
 ]);
 
 function App() {
