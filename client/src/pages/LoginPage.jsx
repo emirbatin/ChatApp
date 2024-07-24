@@ -1,20 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser } from "../redux/userSlice";
 import { BASE_URL } from "../main";
-import { Input, Spacer, Button, Checkbox } from "@nextui-org/react"; // Checkbox bileşenini ekleyin
+import { Input, Spacer, Button, Checkbox } from "@nextui-org/react";
 
 const Login = () => {
   const [user, setUser] = useState({
     username: "",
     password: "",
   });
-  const [rememberMe, setRememberMe] = useState(false); // Remember Me state'i ekleyin
+  const [rememberMe, setRememberMe] = useState(false);
+  const { authUser } = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (authUser) {
+      navigate("/");
+    }
+  }, [authUser, navigate]);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -26,7 +33,6 @@ const Login = () => {
         withCredentials: true
       });
 
-      // Token'ı localStorage veya sessionStorage'da sakla
       if (rememberMe) {
         localStorage.setItem("token", res.data.token);
       } else {
@@ -34,11 +40,9 @@ const Login = () => {
       }
 
       navigate("/");
-      console.log(res);
       dispatch(setAuthUser(res.data));
     } catch (error) {
       toast.error(error.response.data.message);
-      console.log(error);
     }
     setUser({
       username: "",
@@ -51,7 +55,7 @@ const Login = () => {
       <div className="w-full p-0 rounded-lg bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10">
         <h1 className="text-3xl font-bold text-left">Login</h1>
         <Spacer y={4}/>
-        <form onSubmit={onSubmitHandler} action="">
+        <form onSubmit={onSubmitHandler}>
           <div>
             <Input
               autoFocus

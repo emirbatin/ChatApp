@@ -11,11 +11,16 @@ import { setOnlineUsers } from "./redux/userSlice";
 import { initializeSocket, isSocketInitialized } from "./services/socketService";
 import { BASE_URL } from "./main";
 import ErrorBoundary from "./ErrorBoundary";
+import ProtectedRoute from './components/ProtectedRoute';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <HomePage />,
+    element: (
+      <ProtectedRoute>
+        <HomePage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/signup",
@@ -25,6 +30,10 @@ const router = createBrowserRouter([
     path: "/login",
     element: <Login />,
   },
+  {
+    path: "*",
+    element: <h1>404 Not Found</h1>,
+  }
 ]);
 
 function App() {

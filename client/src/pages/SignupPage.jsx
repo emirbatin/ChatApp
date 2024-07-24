@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 import { BASE_URL } from "../main";
 import { Input, Spacer, Button } from "@nextui-org/react";
 
@@ -13,7 +14,14 @@ const Signup = () => {
     confirmPassword: "",
     gender: "",
   });
+  const { authUser } = useSelector((store) => store.user);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (authUser) {
+      navigate("/");
+    }
+  }, [authUser, navigate]);
 
   const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
@@ -42,7 +50,6 @@ const Signup = () => {
       } else {
         toast.error(error.response?.data?.message || "An error occurred.");
       }
-      console.log(error);
     }
     setUser({
       fullName: "",
@@ -52,7 +59,7 @@ const Signup = () => {
       gender: "",
     });
   };
-  
+
   return (
     <div className="min-w-[32rem] mx-auto">
       <div className="w-full p-0 rounded-lg bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10">

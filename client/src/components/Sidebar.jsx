@@ -25,6 +25,14 @@ const Sidebar = () => {
       const res = await axios.get(`${BASE_URL}/api/v1/user/logout`, {
         withCredentials: true,
       });
+
+      // Tüm token saklama alanlarını temizleyin
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+      
+      // Cookie'yi temizlemek için sunucuya bir istek göndermek yeterli olur
+      document.cookie = "token=; Max-Age=0; path=/; domain=" + window.location.hostname;
+
       navigate("/login");
       toast.success(res.data.message);
       dispatch(setAuthUser(null));
