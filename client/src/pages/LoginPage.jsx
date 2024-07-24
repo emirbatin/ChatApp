@@ -13,24 +13,24 @@ const Login = () => {
     password: "",
   });
   const [rememberMe, setRememberMe] = useState(false);
-  const { authUser } = useSelector((store) => store.user);
+  const { authUser, isLoading } = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (authUser) {
+    if (authUser && !isLoading) {
       navigate("/");
     }
-  }, [authUser, navigate]);
+  }, [authUser, isLoading, navigate]);
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.post(`${BASE_URL}/api/v1/user/login`, user, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json'
         },
-        withCredentials: true,
+        withCredentials: true
       });
 
       if (rememberMe) {
@@ -46,15 +46,20 @@ const Login = () => {
     }
     setUser({
       username: "",
-      password: "",
+      password: ""
     });
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
 
   return (
     <div className="min-w-[32rem] mx-auto">
       <div className="w-full p-0 rounded-lg bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10">
         <h1 className="text-3xl font-bold text-left">Login</h1>
-        <Spacer y={4} />
+        <Spacer y={4}/>
         <form onSubmit={onSubmitHandler}>
           <div>
             <Input
@@ -66,7 +71,7 @@ const Login = () => {
               onChange={(e) => setUser({ ...user, username: e.target.value })}
             />
           </div>
-          <Spacer y={4} />
+          <Spacer y={4}/>
           <div>
             <Input
               label="Password"
@@ -77,28 +82,27 @@ const Login = () => {
               onChange={(e) => setUser({ ...user, password: e.target.value })}
             />
           </div>
-          <Spacer y={4} />
+          <Spacer y={4}/>
           <div>
-            <Checkbox
-              checked={rememberMe}
+            <Checkbox 
+              checked={rememberMe} 
               onChange={(e) => setRememberMe(e.target.checked)}
             >
               Remember Me
             </Checkbox>
           </div>
-          <Spacer y={4} />
+          <Spacer y={4}/>
           <div>
-            <Button type="submit" color="primary">
+            <Button
+              type="submit"
+              color="primary"
+            >
               Login
             </Button>
           </div>
-          <Spacer y={4} />
+          <Spacer y={4}/>
           <p className="text-sm text-center my-2">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-blue-500">
-              {" "}
-              Signup{" "}
-            </Link>
+            Don't have an account? <Link to="/signup" className="text-blue-500"> Signup </Link>
           </p>
         </form>
       </div>

@@ -4,9 +4,15 @@ let socket;
 
 export const initializeSocket = (userId) => {
   const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-  socket = io(import.meta.env.VITE_API_URL || "http://localhost:4000", {
-    query: { token, userId },
-  });
+  const socketOptions = {
+    query: { userId }
+  };
+  
+  if (token) {
+    socketOptions.query.token = token;
+  }
+
+  socket = io(import.meta.env.VITE_API_URL || "http://localhost:4000", socketOptions);
   return socket;
 };
 

@@ -1,11 +1,20 @@
 import React, { useEffect } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import Login from "./pages/LoginPage";
 import Signup from "./pages/SignupPage";
 import { useSelector, useDispatch } from "react-redux";
 import { setSocketConnected, setSocketError } from "./redux/socketSlice";
-import { setOnlineUsers, setAuthUser, setLoading } from "./redux/userSlice";
+import {
+  setOnlineUsers,
+  setAuthUser,
+  setLoading,
+  checkAuthStatus,
+} from "./redux/userSlice";
 import {
   initializeSocket,
   isSocketInitialized,
@@ -32,14 +41,21 @@ const router = createBrowserRouter([
     path: "/login",
     element: <Login />,
   },
+  {
+    path: "*",
+    element: <Navigate to="/" />,
+  },
 ]);
 
 function App() {
-  const { authUser } = useSelector((store) => store.user);
+  const { authUser, isLoading } = useSelector((store) => store.user);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // Kullanıcı durumunu yükleyin
+    dispatch(checkAuthStatus());
+  }, [dispatch]);
+
+  useEffect(() => {
     const token =
       localStorage.getItem("token") || sessionStorage.getItem("token");
     if (token) {
@@ -53,36 +69,40 @@ function App() {
           dispatch(setAuthUser(response.data));
         })
         .catch(() => {
-          dispatch(setLoading(false)); // Kullanıcı oturumu geçersizse yükleme tamamlandı
+          dispatch(setLoading(false));
         });
     } else {
-      dispatch(setLoading(false)); // Token yoksa yükleme tamamlandı
+      dispatch(setLoading(false));
     }
   }, [dispatch]);
 
   useEffect(() => {
-    if (authUser && !isSocketInitialized()) {
-      const socket = initializeSocket(authUser._id);
+    if (!isLoading && authUser && !isSocketInitialized()) {
+      try {
+        const socket = initializeSocket(authUser._id);
 
-      socket.on("connect", () => {
-        dispatch(setSocketConnected(true));
-      });
+        socket.on("connect", () => {
+          dispatch(setSocketConnected(true));
+        });
 
-      socket.on("disconnect", () => {
-        dispatch(setSocketConnected(false));
-      });
+        socket.on("disconnect", () => {
+          dispatch(setSocketConnected(false));
+        });
 
-      socket.on("connect_error", (error) => {
-        dispatch(setSocketError(error.message));
-      });
+        socket.on("connect_error", (error) => {
+          dispatch(setSocketError(error.message));
+        });
 
-      socket.on("getOnlineUsers", (onlineUsers) => {
-        dispatch(setOnlineUsers(onlineUsers));
-      });
+        socket.on("getOnlineUsers", (onlineUsers) => {
+          dispatch(setOnlineUsers(onlineUsers));
+        });
 
-      return () => socket.close();
+        return () => socket.close();
+      } catch (error) {
+        console.error(error.message);
+      }
     }
-  }, [authUser, dispatch]);
+  }, [authUser, dispatch, isLoading]);
 
   return (
     <ErrorBoundary>
