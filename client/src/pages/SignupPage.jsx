@@ -118,7 +118,9 @@ const Signup = () => {
           </div>
           <Spacer y={4} />
           <div>
-            <label className="block text-sm font-medium text-gray-700">Choose Your Gender</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Choose Your Gender
+            </label>
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -129,7 +131,9 @@ const Signup = () => {
                 onChange={handleCheckbox}
                 className="mr-2"
               />
-              <label htmlFor="male" className="mr-4">Male</label>
+              <label htmlFor="male" className="mr-4">
+                Male
+              </label>
               <input
                 type="checkbox"
                 id="female"
@@ -150,7 +154,10 @@ const Signup = () => {
           </div>
           <Spacer y={4} />
           <p className="text-sm text-center my-2">
-            Already have an account? <Link to="/login" className="text-blue-500">Login</Link>
+            Already have an account?{" "}
+            <Link to="/login" className="text-blue-500">
+              Login
+            </Link>
           </p>
         </form>
       </div>

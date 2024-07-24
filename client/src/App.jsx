@@ -1,12 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import Login from "./pages/LoginPage";
 import Signup from "./pages/SignupPage";
-import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setSocketConnected, setSocketError } from "./redux/socketSlice";
-import { setOnlineUsers } from "./redux/userSlice";
+import { setOnlineUsers, setAuthUser, setLoading } from "./redux/userSlice";
 import {
   initializeSocket,
   isSocketInitialized,
@@ -14,6 +13,7 @@ import {
 import { BASE_URL } from "./main";
 import ErrorBoundary from "./ErrorBoundary";
 import ProtectedRoute from "./components/ProtectedRoute";
+import axios from "axios";
 
 const router = createBrowserRouter([
   {
@@ -37,6 +37,28 @@ const router = createBrowserRouter([
 function App() {
   const { authUser } = useSelector((store) => store.user);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Kullanıcı durumunu yükleyin
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (token) {
+      axios
+        .get(`${BASE_URL}/api/v1/user/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          dispatch(setAuthUser(response.data));
+        })
+        .catch(() => {
+          dispatch(setLoading(false)); // Kullanıcı oturumu geçersizse yükleme tamamlandı
+        });
+    } else {
+      dispatch(setLoading(false)); // Token yoksa yükleme tamamlandı
+    }
+  }, [dispatch]);
 
   useEffect(() => {
     if (authUser && !isSocketInitialized()) {
