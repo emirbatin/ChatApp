@@ -1,18 +1,18 @@
 import { io } from 'socket.io-client';
+import { BASE_URL } from '../main';
 
 let socket;
 
 export const initializeSocket = (userId) => {
   const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-  const socketOptions = {
-    query: { userId }
-  };
-  
-  if (token) {
-    socketOptions.query.token = token;
+  if (!token) {
+    throw new Error("No token available for WebSocket connection.");
   }
 
-  socket = io(import.meta.env.VITE_API_URL || "http://localhost:4000", socketOptions);
+  socket = io(BASE_URL, {
+    query: { token, userId },
+  });
+
   return socket;
 };
 

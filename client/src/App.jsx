@@ -56,6 +56,24 @@ function App() {
   }, [dispatch]);
 
   useEffect(() => {
+    if (authUser) {
+      const socket = initializeSocket(authUser._id);
+
+      socket.on('connect', () => {
+        console.log('Socket connected');
+      });
+
+      socket.on('getOnlineUsers', (onlineUsers) => {
+        dispatch(setOnlineUsers(onlineUsers));
+      });
+
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [authUser, dispatch]);
+
+  useEffect(() => {
     const token =
       localStorage.getItem("token") || sessionStorage.getItem("token");
     if (token) {
