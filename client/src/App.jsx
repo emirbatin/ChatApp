@@ -14,10 +14,12 @@ import {
   setAuthUser,
   setLoading,
   checkAuthStatus,
+  addOtherUser,
 } from "./redux/userSlice";
 import {
   initializeSocket,
   isSocketInitialized,
+  disconnectSocket,
 } from "./services/socketService";
 import { BASE_URL } from "./main";
 import ErrorBoundary from "./ErrorBoundary";
@@ -51,49 +53,12 @@ function App() {
   const { authUser, isLoading } = useSelector((store) => store.user);
   const dispatch = useDispatch();
 
+  // Check auth status on mount
   useEffect(() => {
     dispatch(checkAuthStatus());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (authUser) {
-      const socket = initializeSocket(authUser._id);
-
-      socket.on('connect', () => {
-        console.log('Socket connected');
-      });
-
-      socket.on('getOnlineUsers', (onlineUsers) => {
-        dispatch(setOnlineUsers(onlineUsers));
-      });
-
-      return () => {
-        socket.disconnect();
-      };
-    }
-  }, [authUser, dispatch]);
-
-  useEffect(() => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (token) {
-      axios
-        .get(`${BASE_URL}/api/v1/user/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          dispatch(setAuthUser(response.data));
-        })
-        .catch(() => {
-          dispatch(setLoading(false));
-        });
-    } else {
-      dispatch(setLoading(false));
-    }
-  }, [dispatch]);
-
+  // Initialize socket connection once when user is authenticated
   useEffect(() => {
     if (!isLoading && authUser && !isSocketInitialized()) {
       try {
@@ -115,9 +80,28 @@ function App() {
           dispatch(setOnlineUsers(onlineUsers));
         });
 
-        return () => socket.close();
+        // Yeni kullanıcı kaydı event listener
+        socket.on("newUserRegistered", (newUser) => {
+          dispatch(addOtherUser(newUser));
+        });
+
+        // Browser kapatıldığında veya sayfa yenilendiğinde socket'i kapat
+        const handleBeforeUnload = () => {
+          disconnectSocket();
+        };
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+          socket.off("connect");
+          socket.off("disconnect");
+          socket.off("connect_error");
+          socket.off("getOnlineUsers");
+          socket.off("newUserRegistered");
+          window.removeEventListener("beforeunload", handleBeforeUnload);
+          socket.close();
+        };
       } catch (error) {
-        console.error(error.message);
+        console.error("Socket initialization error:", error.message);
       }
     }
   }, [authUser, dispatch, isLoading]);

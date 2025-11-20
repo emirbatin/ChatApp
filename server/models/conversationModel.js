@@ -10,4 +10,8 @@ const conversationModel = new mongoose.Schema({
         ref:"Message"
     }]
 },{timestamps:true});
+
+// Compound index for faster conversation lookup
+conversationModel.index({ participants: 1 });
+
 export const Conversation = mongoose.model("Conversation", conversationModel);

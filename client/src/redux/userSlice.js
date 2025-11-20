@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { BASE_URL } from "../main";
+import { disconnectSocket } from "../services/socketService";
 
 export const checkAuthStatus = createAsyncThunk(
   "user/checkAuthStatus",
@@ -40,6 +41,16 @@ const userSlice = createSlice({
     setOtherUsers: (state, action) => {
       state.otherUsers = action.payload;
     },
+    addOtherUser: (state, action) => {
+      if (!state.otherUsers) {
+        state.otherUsers = [action.payload];
+      } else {
+        const exists = state.otherUsers.find(u => u._id === action.payload._id);
+        if (!exists) {
+          state.otherUsers.push(action.payload);
+        }
+      }
+    },
     setSelectedUser: (state, action) => {
       state.selectedUser = action.payload;
     },
@@ -52,8 +63,12 @@ const userSlice = createSlice({
     logout: (state) => {
       state.authUser = null;
       state.isLoading = false;
+      state.selectedUser = null;
+      state.otherUsers = null;
+      state.onlineUsers = [];
       localStorage.removeItem("token");
       sessionStorage.removeItem("token");
+      disconnectSocket();
     },
   },
   extraReducers: (builder) => {
@@ -75,6 +90,7 @@ const userSlice = createSlice({
 export const {
   setAuthUser,
   setOtherUsers,
+  addOtherUser,
   setSelectedUser,
   setOnlineUsers,
   setLoading,

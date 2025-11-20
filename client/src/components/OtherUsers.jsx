@@ -1,14 +1,12 @@
 import React from "react";
 import OtherUser from "./OtherUser";
 import useGetOtherUsers from "../hooks/useGetOtherUsers";
-import { useSelector } from "react-redux";
 
-const OtherUsers = () => {
+const OtherUsers = ({ filteredUsers }) => {
   useGetOtherUsers();
-  const { otherUsers } = useSelector((store) => store.user);
 
-  // Ensure otherUsers is always an array
-  const otherUsersArray = Array.isArray(otherUsers) ? otherUsers : [];
+  // filteredUsers prop'undan kullan, yoksa boş array
+  const otherUsersArray = Array.isArray(filteredUsers) ? filteredUsers : [];
 
   return (
     <div className="overflow-auto flex-1">
@@ -17,7 +15,7 @@ const OtherUsers = () => {
           <OtherUser key={user._id} user={user} />
         ))
       ) : (
-        <div></div>
+        <div className="text-center text-gray-500 mt-4">No users found</div>
       )}
     </div>
   );

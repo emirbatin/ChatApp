@@ -9,8 +9,15 @@ export const initializeSocket = (userId) => {
     throw new Error("No token available for WebSocket connection.");
   }
 
+  if (socket && socket.connected) {
+    return socket;
+  }
+
   socket = io(BASE_URL, {
     query: { token, userId },
+    reconnection: true,
+    reconnectionDelay: 1000,
+    reconnectionAttempts: 5,
   });
 
   return socket;
@@ -24,3 +31,11 @@ export const getSocket = () => {
 };
 
 export const isSocketInitialized = () => !!socket;
+
+export const disconnectSocket = () => {
+  if (socket) {
+    socket.removeAllListeners(); // Tüm event listener'ları temizle
+    socket.disconnect(); // Socket bağlantısını kes
+    socket = null; // Socket referansını temizle
+  }
+};

@@ -25,8 +25,17 @@ const Login = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    
+    if (!user.username.trim() || !user.password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    
     try {
-      const res = await axios.post(`${BASE_URL}/api/v1/user/login`, user, {
+      const res = await axios.post(`${BASE_URL}/api/v1/user/login`, {
+        username: user.username.trim(),
+        password: user.password
+      }, {
         headers: {
           'Content-Type': 'application/json'
         },
@@ -42,7 +51,7 @@ const Login = () => {
       dispatch(setAuthUser(res.data));
       navigate("/");
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Login failed");
     }
     setUser({
       username: "",

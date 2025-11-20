@@ -13,10 +13,14 @@ const SendInput = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    
+    if (!message.trim()) return;
+    if (!selectedUser?._id) return;
+    
     try {
       const res = await axios.post(
-        `${BASE_URL}/api/v1/message/send/${selectedUser?._id}`,
-        { message },
+        `${BASE_URL}/api/v1/message/send/${selectedUser._id}`,
+        { message: message.trim() },
         {
           headers: {
             "Content-Type": "application/json",
@@ -24,11 +28,12 @@ const SendInput = () => {
           withCredentials: true,
         }
       );
-      dispatch(addMessage({ userId: selectedUser._id, message: res.data.newMessage }));
+      const userId = String(selectedUser._id);
+      dispatch(addMessage({ userId, message: res.data.newMessage }));
+      setMessage("");
     } catch (error) {
-      console.log(error);
+      console.error("Failed to send message:", error);
     }
-    setMessage("");
   };
 
   return (

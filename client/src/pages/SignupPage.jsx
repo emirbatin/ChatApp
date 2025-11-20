@@ -33,23 +33,42 @@ const Signup = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    
+    // Validation
+    if (!user.fullName.trim() || !user.username.trim() || !user.password || !user.confirmPassword || !user.gender) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    
+    if (user.password !== user.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    
+    if (user.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    
     try {
-      const res = await axios.post(`${BASE_URL}/api/v1/user/register`, user, {
+      const res = await axios.post(`${BASE_URL}/api/v1/user/register`, {
+        fullName: user.fullName.trim(),
+        username: user.username.trim(),
+        password: user.password,
+        confirmPassword: user.confirmPassword,
+        gender: user.gender
+      }, {
         headers: {
           "Content-Type": "application/json",
         },
         withCredentials: true,
       });
       if (res.data.success) {
-        navigate("/login");
         toast.success(res.data.message);
+        navigate("/login");
       }
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        toast.error("User not authenticated.");
-      } else {
-        toast.error(error.response?.data?.message || "An error occurred.");
-      }
+      toast.error(error.response?.data?.message || "Registration failed");
     }
     setUser({
       fullName: "",
